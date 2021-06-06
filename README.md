@@ -473,7 +473,7 @@ rtt min/avg/max/mdev = 1.242/1.242/1.242/0.000 ms
 
 # 3 用户态和内核态
 
-图片3
+![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/3.jpg)
 
 从图上我们可以看出来通过系统调用将Linux整个体系分为用户态和内核态（或者说内核空间和用户空间）。那内核态到底是什么呢？其实从本质上说就是我们所说的内核，它是一种特殊的软件程序，特殊在哪儿呢？控制计算机的硬件资源，例如协调CPU资源，分配内存资源，并且提供稳定的环境供应用程序运行。
 
@@ -552,15 +552,16 @@ printf(“testfork ok\n”);
 
 # 4 Kubernetes网络实现机制
 
-图片4
+![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/4.png)
 
-图5 
+![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/5.png)
 
-图6
+![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/6.png)
 
+![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/7.png)
 # 5 ,kube-proxy 工作原理
 
-图8
+![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/8.png)
 
-图9
+![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/9.png)
 
