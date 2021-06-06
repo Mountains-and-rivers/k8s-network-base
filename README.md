@@ -566,7 +566,7 @@ The mode bit is set to 0 in the kernel mode. It is changed from 0 to 1 when swit
 
 An image that illustrates the transition from user mode to kernel mode and back again is −
 
-![User Mode vs Kernel Mode](https://www.tutorialspoint.com/assets/questions/media/11194/User%20Mode%20vs%20Kernel%20Mode.PNG)
+![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/10.png)
 
 In the above image, the user process executes in the user mode until it gets a system call. Then a system trap is generated and the mode bit is set to zero. The system call gets executed in kernel mode. After the execution is completed, again a system trap is generated and the mode bit is set to 1. The system control returns to kernel mode and the process execution continues.
 
