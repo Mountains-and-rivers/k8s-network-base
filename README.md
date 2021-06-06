@@ -1,7 +1,7 @@
 # k8s-network-base
 # 1 ip地址分配
 
-图片1
+!(image)[https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/1.png]
 
 # 2，网桥概念
 
