@@ -550,6 +550,35 @@ printf(“testfork ok\n”);
 
 假设A线程有对资源Z加锁，但此时发现资源Z已经被线程B锁定，此时，一种方案是A进入阻塞状态，等待B释放锁。但是，我们如果事先知道，线程B对资源Z的加锁状态持续时间很短，那么，A其实没必要阻塞，等一等就好了。类似于执行一段空循环。这样，就避免了线程的阻塞和唤醒，也就避免了用户态和内核态的切换。这就是自旋。当然，自旋也需要消耗一定的计算资源，但是比较阻塞来说，就要好太多了。当然，这种方案是基于B的加锁状态不会持续太久，且不会有太多线程同时竞争同一资源的场景下的。换句话说，是基于乐观锁而设计的。
 
+## User Mode
+
+The system is in user mode when the operating system is running a user application such as handling a text editor. The transition from user mode to kernel mode occurs when the application requests the help of operating system or an interrupt or a system call occurs.
+
+The mode bit is set to 1 in the user mode. It is changed from 1 to 0 when switching from user mode to kernel mode.
+
+## Kernel Mode
+
+The system starts in kernel mode when it boots and after the operating system is loaded, it executes applications in user mode. There are some privileged instructions that can only be executed in kernel mode.
+
+These are interrupt instructions, input output management etc. If the privileged instructions are executed in user mode, it is illegal and a trap is generated.
+
+The mode bit is set to 0 in the kernel mode. It is changed from 0 to 1 when switching from kernel mode to user mode.
+
+An image that illustrates the transition from user mode to kernel mode and back again is −
+
+![User Mode vs Kernel Mode](https://www.tutorialspoint.com/assets/questions/media/11194/User%20Mode%20vs%20Kernel%20Mode.PNG)
+
+In the above image, the user process executes in the user mode until it gets a system call. Then a system trap is generated and the mode bit is set to zero. The system call gets executed in kernel mode. After the execution is completed, again a system trap is generated and the mode bit is set to 1. The system control returns to kernel mode and the process execution continues.
+
+## Necessity of Dual Mode (User Mode and Kernel Mode) in Operating System
+
+The lack of a dual mode i.e user mode and kernel mode in an operating system can cause serious problems. Some of these are −
+
+- A running user program can accidentaly wipe out the operating system by overwriting it with user data.
+- Multiple processes can write in the same system at the same time, with disastrous results.
+
+These problems could have occurred in the MS-DOS operating system which had no mode bit and so no dual mode.
+
 # 4 Kubernetes网络实现机制
 
 ![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/4.png)
