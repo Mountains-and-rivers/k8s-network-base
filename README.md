@@ -3,6 +3,8 @@
 
 ![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/1.png)
 
+
+![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/2.png)
 # 2，网桥概念
 
 ## 什么是bridge？
