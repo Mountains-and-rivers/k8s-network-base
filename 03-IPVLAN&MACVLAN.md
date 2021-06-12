@@ -202,6 +202,34 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 可以看到已经ping 通了
 ```
 
+## IP地址分配
+
+```
+1，如果DHCP 发送discover，无法回来，发现地址不一样。
+
+2，使用clientId 区分。DHCP分配ip 按clientId区分。
+
+```
+
+
+
+## 扩展
+
+如果在net1中再创建一个 ip 192.168.31.7，它能否ping 通 192.168.31.6？
+
+```
+答：不能
+原因分析：会覆盖原来的ip，只有最新的能通了。
+```
+
+应用：
+
+```
+v-xlan 数据包封装 解封装  和宿主机在同一个网络面，效率高。接近真实网络。
+
+overlay 网络在用户控件 tcp/ip 在内核空间，涉及转换
+```
+
 
 
 # nmcli命令
