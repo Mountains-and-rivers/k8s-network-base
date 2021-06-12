@@ -2,8 +2,6 @@
 
 ![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/ipvlan-01.png)
 
-![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/ipvlan-02.png)
-
 ![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/ipvlan-03.png)
 
 ![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/ipvlan-04.png)
@@ -25,6 +23,12 @@
 ![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/ipvlan-10.png)
 
 多个网桥是因为：在linux bridge 做iptable规则(软防火墙，做Apply scg) OVS 不支持。
+
+# 多路复用网络模型
+
+![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/ipvlan-02.png)
+
+同一个网络子接口可以通过父接接口转发，父接口相当于交换机，从而把子接口的数据转发到需虚拟机
 
 # 练习操作
 
