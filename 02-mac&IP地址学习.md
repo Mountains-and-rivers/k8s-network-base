@@ -32,11 +32,11 @@ pc1 ping 之前查看 LSW2 和 LSW1的mac地址表
 
 在PC1 ping PC2 
 
-![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/mac-11.png)
+![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/mac11.png)
 
 再次查看两台交换机mac
 
-![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/mac-12.png)
+![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/mac12.png)
 
-![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/mac-13.png)
+![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/mac13.png)
 
