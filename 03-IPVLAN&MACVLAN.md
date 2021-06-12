@@ -207,8 +207,8 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 ```
 1，如果DHCP 发送discover，无法回来，发现地址不一样。
 
-2，使用clientId 区分。DHCP分配ip 按clientId区分。
-
+2，DHCP 协议分配 ip 的时候一般会用 mac 地址作为机器的标识。这个情况下，客户端动态获取 ip 的时候需要配置唯一的 ClientID 字段，并且 DHCP server 也要正确配置使用该字段作为机器标识，而不是使用 mac 地址
+参考:https://cizixs.com/2017/02/17/network-virtualization-ipvlan/
 ```
 
 
@@ -228,6 +228,8 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 v-xlan 数据包封装 解封装  和宿主机在同一个网络面，效率高。接近真实网络。
 
 overlay 网络在用户控件 tcp/ip 在内核空间，涉及转换
+
+参考:https://www.jianshu.com/p/a14ebdc37386
 ```
 
 
