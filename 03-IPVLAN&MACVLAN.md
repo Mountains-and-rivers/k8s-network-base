@@ -357,7 +357,8 @@ bridge 模式演示
 ```
 要开启混杂模式
 
-ifconfig wlp2s0 promisc #开启混杂模式
+ifconfig wlp2s0 promisc  #开启混杂模式
+ifconfig wlp2s0 -promisc #关闭混杂模式
 
 ip netns list
 ip netns delete net1  # 删除名称空间
