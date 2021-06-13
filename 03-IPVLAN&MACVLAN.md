@@ -2,6 +2,8 @@
 
 ![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/ipvlan-01.png)
 
+![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/ipvlan-02.png)
+
 ![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/ipvlan-03.png)
 
 ![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/ipvlan-04.png)
@@ -25,6 +27,8 @@
 多个网桥是因为：在linux bridge 做iptable规则(软防火墙，做Apply scg) OVS 不支持。
 
 # 多路复用网络模型
+
+### ipvlan L2
 
 ![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/ipvlan-02.png)
 
@@ -211,6 +215,81 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 参考:https://cizixs.com/2017/02/17/network-virtualization-ipvlan/
 ```
 
+### ipvlan L3 
+
+![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/ipvlan-03.png)
+
+```
+ip netns list
+ip netns delete net1  # 删除名称空间
+ip netns delete net2
+ip netns add net1
+ip netns add net2
+
+ip link add ipvlan1 link wlp2s0 type ipvlan mode l3
+ip link add ipvlan2 link wlp2s0 type ipvlan mode l3
+
+ip link set ipvlan1 netns net1
+ip link set ipvlan2 netns net2
+
+ip netns exec net1 ifconfig ipvlan1 192.168.10.5/24 up
+ip netns exec net2 ifconfig ipvlan2 192.168.20.6/24 up
+
+ip netns exec net1 ifconfig
+ip netns exec net2 ifconfig
+```
+
+```
+[root@node01 ~]# ip netns exec net1 ping 192.168.20.6
+connect: 网络不可达
+[root@node01 ~]# ip netns exec net1 route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+192.168.10.0    0.0.0.0         255.255.255.0   U     0      0        0 ipvlan1
+[root@node01 ~]# ip netns exec net1 route add -net 192.168.20.0/24 dev ipvlan1
+[root@node01 ~]# ip netns exec net1 route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+192.168.10.0    0.0.0.0         255.255.255.0   U     0      0        0 ipvlan1
+192.168.20.0    0.0.0.0         255.255.255.0   U     0      0        0 ipvlan1
+[root@node01 ~]# ip netns exec net1 ping 192.168.20.6
+PING 192.168.20.6 (192.168.20.6) 56(84) bytes of data.
+^C
+--- 192.168.20.6 ping statistics ---
+8 packets transmitted, 0 received, 100% packet loss, time 184ms
+
+# ipvaln2 也添加路由
+[root@node01 ~]# ip netns exec net2 route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+192.168.20.0    0.0.0.0         255.255.255.0   U     0      0        0 ipvlan2
+[root@node01 ~]# ip netns exec net2 route add -net 192.168.10.0/24 dev ipvlan2
+[root@node01 ~]# ip netns exec net1 ping 192.168.20.6
+PING 192.168.20.6 (192.168.20.6) 56(84) bytes of data.
+64 bytes from 192.168.20.6: icmp_seq=1 ttl=64 time=0.035 ms
+64 bytes from 192.168.20.6: icmp_seq=2 ttl=64 time=0.031 ms
+
+[root@node01 ~]# ip netns exec net2 route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+192.168.10.0    0.0.0.0         255.255.255.0   U     0      0        0 ipvlan2
+192.168.20.0    0.0.0.0         255.255.255.0   U     0      0        0 ipvlan2
+```
+
+
+
+原因分析
+
+```
+这种模式无法学习路由，需要手工添加回城路由。
+```
+
+IP分配
+
+```
+base on client ID
+```
+
 
 
 ## 扩展
@@ -258,3 +337,69 @@ virbr0   5d3304f7-1311-4268-9899-4800f71e029b  bridge    virbr0
 # macvlan
 
 ![image](https://github.com/Mountains-and-rivers/k8s-network-base/blob/main/image/macvlan-01.png)
+
+macvlan 有多种模式。
+
+bridge 模式不需要mac 地址学习，不需要生成树[不同厂家不一样，不要使用华为对接思科]。[交换机的生成树是为了防环]
+
+在两个vm之间，也就是2个名称空间[openstack的pod] 提供交换通道。
+
+```
+macvlan 本身是 linux kernel 模块，其功能是允许在同一个物理网卡上配置多个 MAC 地址，即多个 interface，每个 interface 可以配置自己的 IP。macvlan 本质上是一种网卡虚拟化技术(最大优点是性能极好)
+
+可以在linux命令行执行 lsmod | grep macvlan 查看当前内核是否加载了该driver；如果没有查看到，可以通过 modprobe macvlan 来载入，然后重新查看。
+
+Macvlan 允许你在主机的一个网络接口上配置多个虚拟的网络接口，这些网络 interface 有自己独立的 MAC 地址，也可以配置上 IP 地址进行通信。 Macvlan 下的虚拟机或者容器网络和主机在同一个网段中，共享同一个广播域。Macvlan 和 Bridge 比较相似，但因为它省去了 Bridge 的存在，所以配置和调试起来比较简单，而且效率也相对高。除此之外，Macvlan 自身也完美支持 VLAN。
+```
+
+bridge 模式演示
+
+```
+要开启混杂模式
+
+ifconfig wlp2s0 promisc #开启混杂模式
+
+ip netns list
+ip netns delete net1  # 删除名称空间
+ip netns delete net2
+ip netns add net1
+ip netns add net2
+
+ip link add link wlp2s0 name macv1 type macvlan mode bridge
+ip link add link wlp2s0 name macv2 type macvlan mode bridge
+
+ip link set macv1 netns net1
+ip link set macv2 netns net2
+
+ip netns exec net1 ifconfig macv1 192.168.10.5/24 up
+ip netns exec net2 ifconfig macv2 192.168.10.6/24 up
+
+[root@node01 ~]# ip netns exec net1 ifconfig
+macv1: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.10.5  netmask 255.255.255.0  broadcast 192.168.10.255
+        inet6 fe80::5ce7:a3ff:fe6e:562c  prefixlen 64  scopeid 0x20<link>
+        ether 5e:e7:a3:6e:56:2c  txqueuelen 1000  (Ethernet)
+        RX packets 85  bytes 3570 (3.4 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 9  bytes 726 (726.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+[root@node01 ~]# ip netns exec net2 ifconfig
+macv2: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.10.6  netmask 255.255.255.0  broadcast 192.168.10.255
+        inet6 fe80::2413:e5ff:fe0b:922e  prefixlen 64  scopeid 0x20<link>
+        ether 26:13:e5:0b:92:2e  txqueuelen 1000  (Ethernet)
+        RX packets 101  bytes 4242 (4.1 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 9  bytes 726 (726.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+        
+[root@node01 ~]# ip netns exec net1 ping 192.168.10.6
+PING 192.168.10.6 (192.168.10.6) 56(84) bytes of data.
+64 bytes from 192.168.10.6: icmp_seq=1 ttl=64 time=0.092 ms
+64 bytes from 192.168.10.6: icmp_seq=2 ttl=64 time=0.027 ms
+64 bytes from 192.168.10.6: icmp_seq=3 ttl=64 time=0.028 m
+```
+
+
+
