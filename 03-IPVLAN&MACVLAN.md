@@ -311,12 +311,16 @@ overlay 网络在用户控件 tcp/ip 在内核空间，涉及转换
 参考:https://www.jianshu.com/p/a14ebdc37386
 ```
 
+# brctl 命令 
 
+```
+安装：https://centos.pkgs.org/8/epel-x86_64/bridge-utils-1.7.1-2.el8.x86_64.rpm.html
+```
 
 # nmcli命令
 
 ```
-bridge-utils软件包在RHEL7.7被弃用了，所以后面版本不能使用brctl命令
+
 使用nmcli可以完成相同的功能：
 ```
 
